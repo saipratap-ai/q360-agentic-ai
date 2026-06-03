@@ -1,7 +1,7 @@
 python-dotenv==1.0.0
 google-cloud-aiplatform>=1.50.0
-google-cloud-aiplatform-agents>=1.0.0
 google-auth>=2.25.0
+google-cloud-secret-manager>=2.0.0
 langgraph>=0.0.50
 langchain>=0.1.0
 langchain-google-vertexai>=0.1.0

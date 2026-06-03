@@ -1,5 +1,5 @@
 from jira import JIRA
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 class JiraClient:
@@ -63,6 +63,54 @@ class JiraClient:
             return stories
         except Exception as e:
             print(f"Error fetching stories with JQL: {e}")
+            return []
+
+    def get_projects(self) -> List[Dict]:
+        """
+        Get all accessible Jira projects.
+
+        Returns:
+            List of project dicts with key and name
+        """
+        try:
+            projects = self.jira.projects()
+            return [
+                {
+                    "key": p.key,
+                    "name": p.name,
+                    "type": p.projectTypeKey if hasattr(p, 'projectTypeKey') else 'software'
+                }
+                for p in projects
+            ]
+        except Exception as e:
+            print(f"Error fetching projects: {e}")
+            return []
+
+    def get_issues_by_project(self, project_key: str, max_results: int = 20) -> List[Dict]:
+        """
+        Get recent issues from a project.
+
+        Args:
+            project_key: Project key (e.g., 'KAN')
+            max_results: Maximum number of issues to return
+
+        Returns:
+            List of issue dicts with key, summary, and status
+        """
+        try:
+            jql_query = f"project = {project_key} ORDER BY updated DESC"
+            issues = self.jira.search_issues(jql_query, maxResults=max_results)
+            return [
+                {
+                    "key": issue.key,
+                    "summary": issue.fields.summary,
+                    "status": issue.fields.status.name,
+                    "type": issue.fields.issuetype.name
+                }
+                for issue in issues
+            ]
+        except Exception as e:
+            print(f"Error fetching issues: {e}")
             return []
 
     def _extract_acceptance_criteria(self, issue) -> str:

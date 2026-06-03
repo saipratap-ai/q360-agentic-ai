@@ -27,8 +27,11 @@ class Q360Workflow:
         self.tc_generator = agent_factory.create_test_case_generator_agent()
         self.td_generator = agent_factory.create_test_data_generator_agent()
 
-        # Initialize Jira client
-        self.jira_client = JiraClient(jira_url, jira_email, jira_api_token)
+        # Store Jira credentials for lazy initialization
+        self.jira_url = jira_url
+        self.jira_email = jira_email
+        self.jira_api_token = jira_api_token
+        self.jira_client = None  # Lazy initialization
 
         self.graph = self._build_graph()
 
@@ -95,8 +98,18 @@ class Q360Workflow:
         Returns:
             dict with test_cases and test_data
         """
+        # Lazy initialize Jira client if needed
+        if self.jira_client is None:
+            try:
+                self.jira_client = JiraClient(self.jira_url, self.jira_email, self.jira_api_token)
+            except Exception as e:
+                return {"error": f"Failed to connect to Jira: {str(e)}"}
+
         # Fetch the story from Jira
-        story = self.jira_client.fetch_story(jira_issue_key)
+        try:
+            story = self.jira_client.fetch_story(jira_issue_key)
+        except Exception as e:
+            return {"error": f"Failed to fetch story {jira_issue_key}: {str(e)}"}
 
         if not story:
             return {"error": f"Could not fetch story {jira_issue_key}"}

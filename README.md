@@ -1,24 +1,103 @@
-# Q360 Agentic AI Test Platform
+# Q360 - Agentic AI Test Management & Automation Platform
 
-AI-powered test case and test data generation from Jira stories using Gemini API and LangGraph orchestration.
+AI-powered test case and test data generation platform that automates the QA lifecycle — from Jira story analysis to test creation using multi-agent AI orchestration.
+
+## Overview
+
+Q360 leverages **Google Gemini 2.5 Flash**, **LangGraph** orchestration, and **Jira API** integration to automatically generate comprehensive test suites from user stories. The platform features a modern React dashboard with real-time streaming, enterprise-grade UI, and seamless CI/CD deployment on Google Cloud Run.
+
+## Key Features
+
+- **AI-Driven Test Generation** — Generates structured test cases (positive, negative, edge) from Jira stories with >90% effort reduction
+- **Test Data Generation** — Context-aware test data with valid, invalid, and boundary values
+- **Real-Time Streaming** — Server-Sent Events (SSE) for live progress as tests are generated
+- **Jira Integration** — Live project/issue selection with real-time data from Jira API
+- **Enterprise Dashboard** — Dark-themed, responsive UI with sidebar navigation, analytics, and role-based views
+- **Data Source Indicators** — Green "LIVE DATA" / yellow "MOCK DATA" badges so you always know what's real
+- **Mobile Responsive** — Full hamburger menu navigation on mobile/tablet
+- **Cloud Native** — Multi-stage Docker build, deployed on Google Cloud Run with Secret Manager
 
 ## Architecture
 
 ```
-Jira Story → Test Case Generator Agent → Test Data Generator Agent → API Response
+                    +-------------------+
+                    |   React Frontend  |
+                    |   (Dashboard UI)  |
+                    +--------+----------+
+                             |
+                    +--------v----------+
+                    |   FastAPI Server   |
+                    |   (SSE Streaming)  |
+                    +--------+----------+
+                             |
+              +--------------+--------------+
+              |                             |
+    +---------v---------+      +-----------v-----------+
+    |   Jira Client     |      |   LangGraph Workflow   |
+    |   (python-jira)   |      |   (Orchestrator)       |
+    +-------------------+      +-----------+-----------+
+                                           |
+                               +-----------+-----------+
+                               |                       |
+                    +----------v--------+  +-----------v----------+
+                    | Test Case Agent   |  | Test Data Agent      |
+                    | (Gemini 2.5 Flash)|  | (Gemini 2.5 Flash)   |
+                    +-------------------+  +----------------------+
 ```
 
-## Setup
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, CSS3 (dark theme, glassmorphism) |
+| Backend | FastAPI, Uvicorn, SSE streaming |
+| AI/LLM | Google Gemini 2.5 Flash via Vertex AI |
+| Orchestration | LangGraph (multi-agent workflow) |
+| Integration | python-jira, Jira REST API |
+| Secrets | Google Cloud Secret Manager |
+| Deployment | Docker (multi-stage), Google Cloud Run |
+| CI/CD | Google Cloud Build |
+
+## Project Structure
+
+```
+qa-healthcare-agent/
+├── agents/                    # AI Agents
+│   ├── test_case_generator.py # Generates test cases from stories
+│   └── test_data_generator.py # Generates test data for fields
+├── api/                       # FastAPI backend
+│   ├── main.py                # API routes & endpoints
+│   └── secrets.py             # Google Secret Manager integration
+├── frontend/                  # React dashboard
+│   ├── src/
+│   │   ├── App.js             # Main dashboard component
+│   │   └── App.css            # Dark theme styles
+│   └── build/                 # Production build
+├── integrations/              # External integrations
+│   └── jira_client.py         # Jira API client
+├── orchestrator/              # Workflow orchestration
+│   └── workflow.py            # LangGraph multi-agent workflow
+├── run_server.py              # Standalone server (recommended)
+├── Dockerfile                 # Multi-stage Docker build
+├── requirements.txt           # Python dependencies
+├── .env.example               # Environment variables template
+└── README.md
+```
+
+## Getting Started
 
 ### Prerequisites
+
 - Python 3.10+
-- Gemini API key
+- Node.js 18+
+- Google Cloud project with Gemini API enabled
 - Jira instance with API access
 
-### Installation
+### Local Development
 
-1. **Clone/Navigate to project:**
+1. **Clone the repository:**
    ```bash
+   git clone https://github.com/your-org/qa-healthcare-agent.git
    cd qa-healthcare-agent
    ```
 
@@ -31,7 +110,7 @@ Jira Story → Test Case Generator Agent → Test Data Generator Agent → API R
    source venv/bin/activate
    ```
 
-3. **Install dependencies:**
+3. **Install Python dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
@@ -40,130 +119,153 @@ Jira Story → Test Case Generator Agent → Test Data Generator Agent → API R
    ```bash
    cp .env.example .env
    ```
+
+   Edit `.env` and configure:
+   ```env
+   GEMINI_API_KEY=your-gemini-api-key
+   JIRA_URL=https://your-domain.atlassian.net
+   JIRA_EMAIL=your-email@domain.com
+   JIRA_API_TOKEN=your-jira-api-token
+   GCP_PROJECT_ID=your-gcp-project-id
+   ```
+
+5. **Build the frontend:**
+   ```bash
+   cd frontend
+   npm install
+   npm run build
+   cd ..
+   ```
+
+6. **Start the backend:**
+   ```bash
+   python run_server.py
+   ```
+
+   Server runs at `http://localhost:8000`
+
+7. **Open the dashboard:**
    
-   Edit `.env` and add:
-   - `GEMINI_API_KEY`: Get from [Google AI Studio](https://aistudio.google.com/apikey)
-   - `JIRA_URL`: Your Jira instance URL
-   - `JIRA_EMAIL`: Your Jira email
-   - `JIRA_API_TOKEN`: Get from Jira account settings
+   Navigate to `http://localhost:8000` in your browser.
 
-### Getting API Keys
+### API Keys
 
-#### Gemini API Key
-1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
-2. Click "Create API key"
-3. Copy and paste in `.env`
+| Key | Where to Get |
+|-----|-------------|
+| Gemini API Key | [Google AI Studio](https://aistudio.google.com/apikey) |
+| Jira API Token | [Atlassian Account Settings](https://id.atlassian.com/manage-profile/security/api-tokens) |
 
-#### Jira API Token
-1. Go to [Atlassian Account Settings](https://id.atlassian.com/manage-profile/security/api-tokens)
-2. Create API token
-3. Copy and paste in `.env`
+## API Endpoints
 
-## Usage
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | Health check (Jira & workflow status) |
+| GET | `/api/jira/projects` | List all Jira projects |
+| GET | `/api/jira/issues?project=KAN` | List issues from a project |
+| POST | `/api/generate-tests/stream` | Generate tests with SSE streaming |
+| POST | `/generate-tests` | Generate tests (non-streaming) |
+| GET | `/api/info` | API info & integration status |
 
-### Start the API Server
+### Example: Generate Tests (Streaming)
 
 ```bash
-python api/main.py
-```
-
-Server runs at `http://localhost:8000`
-
-### API Endpoints
-
-#### Health Check
-```bash
-curl http://localhost:8000/health
-```
-
-#### Generate Test Cases & Data
-```bash
-curl -X POST http://localhost:8000/generate-tests \
+curl -X POST http://localhost:8000/api/generate-tests/stream \
   -H "Content-Type: application/json" \
-  -d '{"jira_issue_key": "PROJ-123"}'
+  -d '{"jira_issue_key": "KAN-10"}'
 ```
 
-**Response:**
-```json
-{
-  "jira_issue_key": "PROJ-123",
-  "story_summary": "User should be able to login",
-  "test_cases": [
-    {
-      "test_id": "TC_001",
-      "title": "Valid login with correct credentials",
-      "description": "User logs in with valid email and password",
-      "steps": ["1. Enter email", "2. Enter password", "3. Click login"],
-      "expected_result": "User is logged in successfully",
-      "test_type": "positive",
-      "priority": "high"
-    }
-  ],
-  "test_data": [
-    {
-      "field_name": "email",
-      "data_type": "email",
-      "sample_value": "user@example.com",
-      "constraints": "Must be valid email format",
-      "test_category": "valid"
-    }
-  ],
-  "error": ""
-}
+**SSE Response:**
+```
+data: {"type": "status", "message": "Connecting to Jira..."}
+data: {"type": "story", "data": {"key": "KAN-10", "summary": "User Login Feature"}}
+data: {"type": "test_case", "data": {"test_id": "TC_001", "title": "Valid login", ...}}
+data: {"type": "test_data", "data": {"field_name": "email", "sample_value": "user@test.com", ...}}
+data: {"type": "complete", "message": "Test generation complete!"}
 ```
 
-## Project Structure
+## Dashboard Pages
 
+| Page | Status | Description |
+|------|--------|-------------|
+| Dashboard | MVP | Metrics, coverage rings, activity feed |
+| Test Generation | MVP | Jira integration, AI generation, streaming results |
+| Automation | Phase 2 | Selenium/Rest Assured script generation |
+| Execution | Phase 2 | CI/CD pipeline integration |
+| Analytics | Phase 2 | Test coverage, defect density insights |
+| Traceability | Phase 2 | Requirement-to-defect mapping |
+| Settings | Phase 2 | Integrations & user management |
+
+## Deployment
+
+### Google Cloud Run
+
+```bash
+# Build and push Docker image
+gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/q360
+
+# Deploy to Cloud Run
+gcloud run deploy q360 \
+  --image gcr.io/YOUR_PROJECT_ID/q360 \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --memory 1Gi \
+  --timeout 300 \
+  --set-env-vars GCP_PROJECT_ID=YOUR_PROJECT_ID
 ```
-qa-healthcare-agent/
-├── agents/                 # AI Agents
-│   ├── test_case_generator.py
-│   └── test_data_generator.py
-├── integrations/          # External integrations
-│   └── jira_client.py
-├── orchestrator/          # Workflow orchestration
-│   └── workflow.py
-├── api/                   # FastAPI backend
-│   └── main.py
-├── .env.example
-├── requirements.txt
-└── README.md
-```
+
+### Environment Variables (Cloud Run)
+
+Secrets are managed via **Google Cloud Secret Manager**:
+- `jira-url` — Jira instance URL
+- `jira-email` — Jira account email
+- `jira-api-token` — Jira API token
+- `gemini-api-key` — Google Gemini API key
 
 ## How It Works
 
-1. **Fetch Jira Story**: Retrieves story summary, description, and acceptance criteria from Jira
-2. **Generate Test Cases**: Uses Gemini to create positive, negative, and edge case test cases
-3. **Generate Test Data**: Creates test data for each test case (valid, invalid, boundary values)
-4. **Return Results**: API returns structured test cases and test data
-
-## Next Steps
-
-- [ ] Add qTest integration for storing test cases
-- [ ] Build React dashboard UI
-- [ ] Add Script Generator agent (Selenium/RestAssured)
-- [ ] Implement Deduplication agent
-- [ ] Add Self-Healing agent
-- [ ] Build Analytics agent
-- [ ] Add execution engine
-- [ ] Implement approval workflow (HITL)
+1. **User selects** a Jira project and issue from the dashboard
+2. **Jira Client** fetches story details (summary, description, acceptance criteria)
+3. **LangGraph Orchestrator** coordinates the AI agents:
+   - **Test Case Generator Agent** — Creates positive, negative, and edge case tests
+   - **Test Data Generator Agent** — Creates valid, invalid, and boundary test data
+4. **SSE Stream** sends results to the frontend in real-time
+5. **Dashboard** displays test cases in an interactive table with expandable details
 
 ## Troubleshooting
 
-### Gemini API Key Error
-- Ensure API key is valid and enabled in Google Cloud
-- Check `.env` file has `GEMINI_API_KEY` set
+| Issue | Solution |
+|-------|---------|
+| Jira connection error | Verify JIRA_URL, JIRA_EMAIL, JIRA_API_TOKEN in `.env` |
+| Gemini API error | Check GEMINI_API_KEY is valid and Vertex AI is enabled |
+| Port already in use | Kill existing processes: `netstat -ano \| findstr :8000` |
+| Frontend not loading | Run `npm run build` in `/frontend` directory |
+| Docker build fails | Ensure Node 18+ and Python 3.11+ are available |
 
-### Jira Connection Error
-- Verify Jira URL, email, and API token are correct
-- Ensure Jira instance is accessible
-- Check API token is generated and not expired
+## Roadmap
 
-### JSON Parsing Error
-- LLM response format might not be parseable
-- Check Gemini API response in logs
-- May need to refine prompts for consistency
+- [x] AI-driven test case generation (Gemini 2.5 Flash)
+- [x] Test data generation (valid/invalid/boundary)
+- [x] Jira integration (projects, issues)
+- [x] SSE streaming with real-time progress
+- [x] Enterprise dashboard UI (dark theme)
+- [x] Mobile responsive with hamburger menu
+- [x] Cloud Run deployment with Secret Manager
+- [x] Live/Mock data source indicators
+- [ ] qTest integration for test management
+- [ ] Selenium script generation agent
+- [ ] Rest Assured API script generation
+- [ ] Self-healing agent for failed scripts
+- [ ] Analytics & performance insights
+- [ ] Execution engine with CI/CD integration
+- [ ] Human-in-the-loop approval workflow
+- [ ] Deduplication agent (semantic similarity)
+- [ ] End-to-end traceability matrix
 
 ## License
 
-TBD
+Proprietary - Internal Use Only
+
+## Author
+
+Built by QA Engineering Team | Q360 Platform
