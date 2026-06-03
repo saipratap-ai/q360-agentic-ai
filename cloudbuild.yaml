@@ -1,0 +1,36 @@
+# Google Cloud Build configuration for Q360 API
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/q360-api:latest'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/q360-api:$SHORT_SHA'
+      - '.'
+
+  # Push the image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/q360-api'
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/cloud-builders/gke-deploy'
+    args:
+      - 'run'
+      - '-f=.'
+      - '-i=$_SERVICE_NAME'
+      - '-l=gcr.io/$PROJECT_ID/$_SERVICE_NAME'
+      - '-o=/workspace/output'
+
+images:
+  - 'gcr.io/$PROJECT_ID/q360-api:latest'
+  - 'gcr.io/$PROJECT_ID/q360-api:$SHORT_SHA'
+
+substitutions:
+  _SERVICE_NAME: 'q360-api'
+
+options:
+  machineType: 'N1_HIGHCPU_8'
