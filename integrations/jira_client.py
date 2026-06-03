@@ -77,3 +77,36 @@ class JiraClient:
             return description.split("Acceptance Criteria:")[1].strip()
 
         return ""
+
+    def create_issue(self, project_key: str, summary: str, description: str, issue_type: str = "Story") -> Dict:
+        """
+        Create a new Jira issue.
+
+        Args:
+            project_key: Project key (e.g., 'PROJ')
+            summary: Issue summary/title
+            description: Issue description with acceptance criteria
+            issue_type: Issue type (Story, Task, Bug, etc.)
+
+        Returns:
+            Dict with created issue details
+        """
+        try:
+            issue_dict = {
+                "project": {"key": project_key},
+                "summary": summary,
+                "description": description,
+                "issuetype": {"name": issue_type},
+            }
+
+            created_issue = self.jira.create_issue(fields=issue_dict)
+
+            return {
+                "key": created_issue.key,
+                "id": created_issue.id,
+                "summary": summary,
+                "status": "To Do",
+            }
+        except Exception as e:
+            print(f"Error creating issue: {e}")
+            return {}
