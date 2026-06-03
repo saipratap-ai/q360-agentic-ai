@@ -1,20 +1,22 @@
 """
 Google Cloud Agents SDK for creating and managing AI agents.
-Factory for creating test case and test data generation agents.
+Factory for creating test case and test data generation agents using Google Cloud Agents API.
 """
 
 from typing import Dict, List, Any
-import google.generativeai as genai
+from google.cloud.aiplatform import agents
+from google.cloud import aiplatform
+from google.auth import default as auth_default
 import json
 import os
 
 
 class GoogleCloudAgentFactory:
-    """Factory for creating and managing Google Cloud Agents."""
+    """Factory for creating and managing Google Cloud Agents (official SDK)."""
 
     def __init__(self, project_id: str, region: str = "us-central1"):
         """
-        Initialize Google Cloud Agent Factory.
+        Initialize Google Cloud Agent Factory using official Agents SDK.
 
         Args:
             project_id: Google Cloud project ID
@@ -23,15 +25,13 @@ class GoogleCloudAgentFactory:
         self.project_id = project_id
         self.region = region
 
-        # Initialize with API key from environment
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            # Try to get from gcloud auth
-            from google.auth import default
-            credentials, _ = default()
-            genai.configure(credentials=credentials)
-        else:
-            genai.configure(api_key=api_key)
+        # Initialize Vertex AI with proper credentials
+        credentials, _ = auth_default()
+        aiplatform.init(
+            project=project_id,
+            location=region,
+            credentials=credentials
+        )
 
     def create_test_case_generator_agent(self) -> "TestCaseGeneratorAgent":
         """Create a test case generator agent using Google Cloud Agents."""
@@ -43,17 +43,25 @@ class GoogleCloudAgentFactory:
 
 
 class TestCaseGeneratorAgent:
-    """Test Case Generator Agent using Google Cloud Generative Models."""
+    """Test Case Generator Agent using Google Cloud Agents SDK."""
 
     def __init__(self, project_id: str, region: str = "us-central1"):
-        """Initialize Test Case Generator Agent."""
+        """Initialize Test Case Generator Agent using Google Cloud Agents API."""
         self.project_id = project_id
         self.region = region
-        self.model = genai.GenerativeModel("gemini-2.5-flash")
+        credentials, _ = auth_default()
+        aiplatform.init(
+            project=project_id,
+            location=region,
+            credentials=credentials
+        )
+        # Use Generative AI service through Vertex AI
+        self.model_name = "gemini-2.5-flash"
+        self.location = f"projects/{project_id}/locations/{region}"
 
     def generate_test_cases(self, story: Dict[str, str]) -> List[Dict[str, Any]]:
         """
-        Generate test cases from a Jira story using Vertex AI.
+        Generate test cases from a Jira story using Google Cloud Generative AI.
 
         Args:
             story: Dict with keys: summary, description, acceptance_criteria
@@ -64,7 +72,9 @@ class TestCaseGeneratorAgent:
         prompt = self._build_prompt(story)
 
         try:
-            response = self.model.generate_content(prompt)
+            from vertexai.generative_models import GenerativeModel
+            model = GenerativeModel(self.model_name)
+            response = model.generate_content(prompt)
             test_cases = self._parse_response(response.text)
             return test_cases
         except Exception as e:
@@ -129,17 +139,25 @@ Generate at least 5 test cases (mix of positive, negative, and edge cases).
 
 
 class TestDataGeneratorAgent:
-    """Test Data Generator Agent using Google Cloud Generative Models."""
+    """Test Data Generator Agent using Google Cloud Agents SDK."""
 
     def __init__(self, project_id: str, region: str = "us-central1"):
-        """Initialize Test Data Generator Agent."""
+        """Initialize Test Data Generator Agent using Google Cloud Agents API."""
         self.project_id = project_id
         self.region = region
-        self.model = genai.GenerativeModel("gemini-2.5-flash")
+        credentials, _ = auth_default()
+        aiplatform.init(
+            project=project_id,
+            location=region,
+            credentials=credentials
+        )
+        # Use Generative AI service through Vertex AI
+        self.model_name = "gemini-2.5-flash"
+        self.location = f"projects/{project_id}/locations/{region}"
 
     def generate_test_data(self, test_cases: List, story_context: str) -> List[Dict]:
         """
-        Generate test data for test cases using Vertex AI.
+        Generate test data for test cases using Google Cloud Generative AI.
 
         Args:
             test_cases: List of test case objects
@@ -151,7 +169,9 @@ class TestDataGeneratorAgent:
         prompt = self._build_prompt(test_cases, story_context)
 
         try:
-            response = self.model.generate_content(prompt)
+            from vertexai.generative_models import GenerativeModel
+            model = GenerativeModel(self.model_name)
+            response = model.generate_content(prompt)
             test_data = self._parse_response(response.text)
             return test_data
         except Exception as e:
