@@ -1,11 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from fastapi.staticfiles import StaticFiles
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 from orchestrator.workflow import Q360Workflow
+from api.secrets import init_secrets, get_jira_credentials, get_google_api_key
 
-# Load environment variables
+# Load environment variables (for local development)
 load_dotenv()
 
 app = FastAPI(title="Q360 Agentic AI Test Platform", version="1.0.0")
@@ -19,14 +21,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Initialize secrets
+project_id = os.getenv("GCP_PROJECT_ID", "gen-lang-client-0256721605")
+try:
+    init_secrets(project_id)
+    jira_url, jira_email, jira_token = get_jira_credentials()
+except Exception as e:
+    print(f"Warning: Could not load secrets from Secret Manager: {e}")
+    # Fallback to environment variables
+    jira_url = os.getenv("JIRA_URL")
+    jira_email = os.getenv("JIRA_EMAIL")
+    jira_token = os.getenv("JIRA_API_TOKEN")
+
 # Initialize workflow with Google Cloud configuration
 workflow = Q360Workflow(
-    gcp_project_id=os.getenv("GCP_PROJECT_ID"),
+    gcp_project_id=project_id,
     gcp_region=os.getenv("GCP_REGION", "us-central1"),
-    jira_url=os.getenv("JIRA_URL"),
-    jira_email=os.getenv("JIRA_EMAIL"),
-    jira_api_token=os.getenv("JIRA_API_TOKEN"),
+    jira_url=jira_url,
+    jira_email=jira_email,
+    jira_api_token=jira_token,
 )
+
+# Serve frontend static files
+frontend_path = Path(__file__).parent.parent / "frontend" / "build"
+if frontend_path.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_path), html=True), name="frontend")
 
 
 class GenerateTestsRequest(BaseModel):
