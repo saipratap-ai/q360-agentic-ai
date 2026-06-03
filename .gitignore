@@ -1,3 +1,6 @@
+# Claude Code
+.claude/
+
 # Environment
 .env
 .env.local
@@ -24,16 +27,22 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+pip-log.txt
+pip-delete-this-directory.txt
 
 # Virtual Environment
 venv/
 ENV/
 env/
 .venv
+venv*/
 
 # IDE
 .vscode/
 .idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
 *.swp
 *.swo
 *~
@@ -43,6 +52,7 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
+.tox/
 
 # Outputs
 results_*.json
@@ -52,3 +62,15 @@ results_*.json
 node_modules/
 dist/
 .next/
+out/
+
+# OS
+Thumbs.db
+.DS_Store
+*.tmp
+
+# Temporary files
+*.bak
+*.orig
+*.swp
+*~
