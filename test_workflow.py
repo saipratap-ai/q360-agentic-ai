@@ -11,9 +11,10 @@ from orchestrator.workflow import Q360Workflow
 # Load environment variables
 load_dotenv()
 
-# Initialize workflow
+# Initialize workflow with Google Cloud configuration
 workflow = Q360Workflow(
-    gemini_api_key=os.getenv("GEMINI_API_KEY"),
+    gcp_project_id=os.getenv("GCP_PROJECT_ID"),
+    gcp_region=os.getenv("GCP_REGION", "us-central1"),
     jira_url=os.getenv("JIRA_URL"),
     jira_email=os.getenv("JIRA_EMAIL"),
     jira_api_token=os.getenv("JIRA_API_TOKEN"),
@@ -29,14 +30,14 @@ def test_workflow(jira_issue_key: str):
     result = workflow.execute(jira_issue_key)
 
     if result.get("error"):
-        print(f"❌ Error: {result['error']}")
+        print(f"[ERROR] Error: {result['error']}")
         return
 
-    print(f"\n✅ Story Summary: {result.get('story_summary')}")
+    print(f"\n[SUCCESS] Story Summary: {result.get('story_summary')}")
 
     # Print test cases
     test_cases = result.get("test_cases", [])
-    print(f"\n📋 Generated {len(test_cases)} Test Cases:")
+    print(f"\n[TEST CASES] Generated {len(test_cases)} Test Cases:")
     print("-" * 60)
     for tc in test_cases:
         print(f"ID: {tc['test_id']}")
@@ -48,7 +49,7 @@ def test_workflow(jira_issue_key: str):
 
     # Print test data
     test_data = result.get("test_data", [])
-    print(f"\n📊 Generated {len(test_data)} Test Data Points:")
+    print(f"\n[TEST DATA] Generated {len(test_data)} Test Data Points:")
     print("-" * 60)
 
     # Group by field name
@@ -72,7 +73,7 @@ def test_workflow(jira_issue_key: str):
     with open(output_file, "w") as f:
         json.dump(result, f, indent=2)
 
-    print(f"\n✅ Results saved to: {output_file}")
+    print(f"\n[SUCCESS] Results saved to: {output_file}")
 
 
 if __name__ == "__main__":
@@ -81,12 +82,12 @@ if __name__ == "__main__":
     jira_issue = input("Enter Jira issue key (e.g., PROJ-123): ").strip()
 
     if not jira_issue:
-        print("❌ Issue key required. Example: PROJ-123")
+        print("[ERROR] Issue key required. Example: PROJ-123")
     else:
         try:
             test_workflow(jira_issue)
         except Exception as e:
-            print(f"❌ Error running workflow: {e}")
+            print(f"[ERROR] Error running workflow: {e}")
             import traceback
 
             traceback.print_exc()

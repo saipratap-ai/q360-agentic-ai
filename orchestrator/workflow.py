@@ -56,7 +56,8 @@ class Q360Workflow:
 
             test_cases = self.tc_generator.generate_test_cases(story)
 
-            state["test_cases"] = [tc.model_dump() for tc in test_cases]
+            # test_cases are already dicts, not Pydantic models
+            state["test_cases"] = test_cases
             state["error"] = ""
         except Exception as e:
             state["error"] = f"Error generating test cases: {str(e)}"
@@ -76,7 +77,8 @@ class Q360Workflow:
 
             test_data = self.td_generator.generate_test_data(test_cases, story_context)
 
-            state["test_data"] = [td.model_dump() for td in test_data]
+            # test_data are already dicts, not Pydantic models
+            state["test_data"] = test_data
         except Exception as e:
             state["error"] = f"Error generating test data: {str(e)}"
             state["test_data"] = []
