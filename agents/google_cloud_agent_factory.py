@@ -1,10 +1,10 @@
 """
 Google Cloud Agents SDK for creating and managing AI agents.
 Factory for creating test case and test data generation agents using Google Cloud Agents API.
+Uses Vertex AI and google-cloud-aiplatform for agent management.
 """
 
 from typing import Dict, List, Any
-from google.cloud.aiplatform import agents
 from google.cloud import aiplatform
 from google.auth import default as auth_default
 import json
