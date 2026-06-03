@@ -1,11 +1,13 @@
 python-dotenv==1.0.0
-google-generativeai>=0.7.0
+google-cloud-aiplatform>=1.50.0
+google-cloud-vertexai>=1.0.0
 langgraph>=0.0.50
 langchain>=0.1.0
-langchain-google-genai>=4.0.0
+langchain-google-vertexai>=0.1.0
 requests>=2.32.0
 jira>=3.10.0
 fastapi>=0.104.0
 uvicorn>=0.24.0
 pydantic>=2.5.0
 pydantic-settings>=2.1.0
+google-auth>=2.25.0

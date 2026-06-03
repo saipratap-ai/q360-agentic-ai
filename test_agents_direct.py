@@ -1,26 +1,28 @@
 """
-Direct test of agents without Jira dependency.
-Tests Gemini API connectivity and agent functionality.
+Direct test of Google Cloud Agents without Jira dependency.
+Tests Google Cloud Agents API connectivity and agent functionality.
 """
 
 import os
 import json
 from dotenv import load_dotenv
-from agents.test_case_generator import TestCaseGeneratorAgent
-from agents.test_data_generator import TestDataGeneratorAgent
+from agents.google_cloud_agent_factory import GoogleCloudAgentFactory
 
 # Load environment variables
 load_dotenv()
 
-gemini_key = os.getenv("GEMINI_API_KEY")
+gcp_project_id = os.getenv("GCP_PROJECT_ID")
+gcp_region = os.getenv("GCP_REGION", "us-central1")
 
-if not gemini_key:
-    print("❌ GEMINI_API_KEY not found in .env")
+if not gcp_project_id:
+    print("[ERROR] GCP_PROJECT_ID not found in .env")
     exit(1)
 
 print("=" * 60)
-print("Testing Q360 Agents with Sample Story")
+print("Testing Q360 Google Cloud Agents with Sample Story")
 print("=" * 60)
+print(f"\n[INFO] GCP Project: {gcp_project_id}")
+print(f"[INFO] GCP Region: {gcp_region}\n")
 
 # Sample story (no Jira needed)
 sample_story = {
@@ -38,19 +40,20 @@ sample_story = {
 print(f"\n[STORY] {sample_story['summary']}\n")
 
 # Test 1: Test Case Generator
-print("[TEST 1] Testing Test Case Generator Agent...")
+print("[TEST 1] Testing Google Cloud Test Case Generator Agent...")
 print("-" * 60)
 
 try:
-    tc_agent = TestCaseGeneratorAgent(gemini_key)
+    agent_factory = GoogleCloudAgentFactory(gcp_project_id, gcp_region)
+    tc_agent = agent_factory.create_test_case_generator_agent()
     test_cases = tc_agent.generate_test_cases(sample_story)
 
     print(f"[SUCCESS] Generated {len(test_cases)} test cases\n")
 
     for i, tc in enumerate(test_cases, 1):
-        print(f"TC {i}: {tc.test_id} - {tc.title}")
-        print(f"   Type: {tc.test_type} | Priority: {tc.priority}")
-        print(f"   Steps: {len(tc.steps)}")
+        print(f"TC {i}: {tc.get('test_id', 'N/A')} - {tc.get('title', 'N/A')}")
+        print(f"   Type: {tc.get('test_type', 'N/A')} | Priority: {tc.get('priority', 'N/A')}")
+        print(f"   Steps: {len(tc.get('steps', []))}")
         print()
 
 except Exception as e:
@@ -61,11 +64,11 @@ except Exception as e:
 
 # Test 2: Test Data Generator
 print("\n" + "=" * 60)
-print("[TEST 2] Testing Test Data Generator Agent...")
+print("[TEST 2] Testing Google Cloud Test Data Generator Agent...")
 print("-" * 60)
 
 try:
-    td_agent = TestDataGeneratorAgent(gemini_key)
+    td_agent = agent_factory.create_test_data_generator_agent()
     test_data = td_agent.generate_test_data(test_cases, sample_story["summary"])
 
     print(f"[SUCCESS] Generated {len(test_data)} test data points\n")
@@ -73,14 +76,15 @@ try:
     # Group by field
     fields = {}
     for td in test_data:
-        if td.field_name not in fields:
-            fields[td.field_name] = []
-        fields[td.field_name].append(td)
+        field_name = td.get('field_name', 'unknown')
+        if field_name not in fields:
+            fields[field_name] = []
+        fields[field_name].append(td)
 
     for field_name, data_points in fields.items():
         print(f"Field: {field_name}")
         for dp in data_points:
-            print(f"  [{dp.test_category}] {dp.sample_value} ({dp.data_type})")
+            print(f"  [{dp.get('test_category', 'N/A')}] {dp.get('sample_value', 'N/A')} ({dp.get('data_type', 'N/A')})")
         print()
 
 except Exception as e:
@@ -96,13 +100,13 @@ print("=" * 60)
 print(f"\nResults:")
 print(f"  - Test Cases Generated: {len(test_cases)}")
 print(f"  - Test Data Generated: {len(test_data)}")
-print(f"\n[INFO] Gemini API is working perfectly!")
+print(f"\n[INFO] Google Cloud Agents API is working perfectly!")
 
 # Save results
 output = {
     "story": sample_story,
-    "test_cases": [tc.model_dump() for tc in test_cases],
-    "test_data": [td.model_dump() for td in test_data]
+    "test_cases": test_cases,
+    "test_data": test_data
 }
 
 with open("test_results.json", "w") as f:

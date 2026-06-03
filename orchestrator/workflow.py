@@ -1,7 +1,6 @@
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, List, Any, Dict
-from agents.test_case_generator import TestCaseGeneratorAgent
-from agents.test_data_generator import TestDataGeneratorAgent
+from agents.google_cloud_agent_factory import GoogleCloudAgentFactory
 from integrations.jira_client import JiraClient
 
 
@@ -17,13 +16,18 @@ class WorkflowState(TypedDict):
 class Q360Workflow:
     def __init__(
         self,
-        gemini_api_key: str,
+        gcp_project_id: str,
+        gcp_region: str,
         jira_url: str,
         jira_email: str,
         jira_api_token: str,
     ):
-        self.tc_generator = TestCaseGeneratorAgent(gemini_api_key)
-        self.td_generator = TestDataGeneratorAgent(gemini_api_key)
+        # Initialize Google Cloud Agent Factory
+        agent_factory = GoogleCloudAgentFactory(gcp_project_id, gcp_region)
+        self.tc_generator = agent_factory.create_test_case_generator_agent()
+        self.td_generator = agent_factory.create_test_data_generator_agent()
+
+        # Initialize Jira client
         self.jira_client = JiraClient(jira_url, jira_email, jira_api_token)
 
         self.graph = self._build_graph()

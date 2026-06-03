@@ -19,9 +19,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize workflow
+# Initialize workflow with Google Cloud configuration
 workflow = Q360Workflow(
-    gemini_api_key=os.getenv("GEMINI_API_KEY"),
+    gcp_project_id=os.getenv("GCP_PROJECT_ID"),
+    gcp_region=os.getenv("GCP_REGION", "us-central1"),
     jira_url=os.getenv("JIRA_URL"),
     jira_email=os.getenv("JIRA_EMAIL"),
     jira_api_token=os.getenv("JIRA_API_TOKEN"),
