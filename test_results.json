@@ -1,0 +1,307 @@
+{
+  "story": {
+    "summary": "User registration with email validation",
+    "description": "As a user, I want to register for a new account with my email and password",
+    "acceptance_criteria": "\n    - User should be able to enter email and password\n    - Password must be at least 8 characters\n    - Email must be valid format\n    - User should receive confirmation email\n    - Duplicate email registration should be rejected\n    "
+  },
+  "test_cases": [
+    {
+      "test_id": "TC_001",
+      "title": "Successful User Registration with Valid Credentials",
+      "description": "Verify a user can successfully register with a unique, valid email and a password meeting minimum length requirements, and receives a confirmation email.",
+      "steps": [
+        "Navigate to the user registration page.",
+        "Enter a unique, valid email address (e.g., 'newuser@example.com').",
+        "Enter a strong password that meets the 8-character minimum (e.g., 'MySecureP@ssword123').",
+        "Click the 'Register' or 'Sign Up' button.",
+        "Check the inbox of 'newuser@example.com' for a confirmation email."
+      ],
+      "expected_result": "User account is successfully created, the user is redirected to a success page or logged in automatically, and a confirmation email is received in the provided email inbox.",
+      "test_type": "positive",
+      "priority": "high"
+    },
+    {
+      "test_id": "TC_002",
+      "title": "Attempt Registration with Password Less Than 8 Characters",
+      "description": "Verify that the system prevents user registration when the provided password is less than the required 8 characters.",
+      "steps": [
+        "Navigate to the user registration page.",
+        "Enter a unique, valid email address (e.g., 'shortpassworduser@example.com').",
+        "Enter a password with less than 8 characters (e.g., 'short1').",
+        "Click the 'Register' or 'Sign Up' button."
+      ],
+      "expected_result": "An error message indicating that the password must be at least 8 characters long is displayed, and the user account is not created.",
+      "test_type": "negative",
+      "priority": "high"
+    },
+    {
+      "test_id": "TC_003",
+      "title": "Attempt Registration with Invalid Email Format",
+      "description": "Verify that the system prevents user registration when the provided email address does not conform to a valid email format.",
+      "steps": [
+        "Navigate to the user registration page.",
+        "Enter an invalid email address (e.g., 'invalid-email', 'user@.com', 'user@domain').",
+        "Enter a valid password (e.g., 'ValidP@ssword1').",
+        "Click the 'Register' or 'Sign Up' button."
+      ],
+      "expected_result": "An error message indicating an invalid email format is displayed, and the user account is not created.",
+      "test_type": "negative",
+      "priority": "high"
+    },
+    {
+      "test_id": "TC_004",
+      "title": "Attempt Registration with Already Registered Email",
+      "description": "Verify that the system prevents user registration when an email address that is already registered is used.",
+      "steps": [
+        "Pre-condition: Ensure an account with email 'existing@example.com' and password 'ExistingP@ss1' already exists in the system.",
+        "Navigate to the user registration page.",
+        "Enter the already registered email address (e.g., 'existing@example.com').",
+        "Enter a valid password (e.g., 'NewValidP@ss2').",
+        "Click the 'Register' or 'Sign Up' button."
+      ],
+      "expected_result": "An error message indicating that the email address is already registered (or similar) is displayed, and the user account is not created.",
+      "test_type": "negative",
+      "priority": "high"
+    },
+    {
+      "test_id": "TC_005",
+      "title": "Successful Registration with Password Exactly 8 Characters",
+      "description": "Verify that a user can successfully register when providing a password that is exactly 8 characters long, meeting the minimum boundary condition.",
+      "steps": [
+        "Navigate to the user registration page.",
+        "Enter a unique, valid email address (e.g., 'eightcharpw@example.com').",
+        "Enter a password with exactly 8 characters (e.g., 'P@ssword').",
+        "Click the 'Register' or 'Sign Up' button.",
+        "Check the inbox of 'eightcharpw@example.com' for a confirmation email."
+      ],
+      "expected_result": "User account is successfully created, the user is redirected to a success page or logged in automatically, and a confirmation email is received in the provided email inbox.",
+      "test_type": "edge",
+      "priority": "medium"
+    },
+    {
+      "test_id": "TC_006",
+      "title": "Successful Registration with Email Containing Allowed Special Characters",
+      "description": "Verify that a user can successfully register with an email address containing allowed special characters in the local part (e.g., '+', '.', '-').",
+      "steps": [
+        "Navigate to the user registration page.",
+        "Enter a unique, valid email address with allowed special characters (e.g., 'user.name+alias@example.com').",
+        "Enter a valid password (e.g., 'SecureP@ss3').",
+        "Click the 'Register' or 'Sign Up' button.",
+        "Check the inbox of 'user.name+alias@example.com' for a confirmation email."
+      ],
+      "expected_result": "User account is successfully created, the user is redirected to a success page or logged in automatically, and a confirmation email is received in the provided email inbox.",
+      "test_type": "edge",
+      "priority": "medium"
+    }
+  ],
+  "test_data": [
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "newuser1@example.com",
+      "constraints": "Must be a valid and unique email format",
+      "test_category": "valid",
+      "scenario_description": "Successful User Registration - Valid Credentials (Email)"
+    },
+    {
+      "field_name": "password",
+      "data_type": "string",
+      "sample_value": "StrongP@ssw0rd1",
+      "constraints": "Minimum 8 characters",
+      "test_category": "valid",
+      "scenario_description": "Successful User Registration - Valid Credentials (Password)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "john.doe@email.co.uk",
+      "constraints": "Must be a valid and unique email format",
+      "test_category": "valid",
+      "scenario_description": "Successful User Registration - Valid Credentials (Email with sub-domain)"
+    },
+    {
+      "field_name": "password",
+      "data_type": "string",
+      "sample_value": "JohnDoeP@ss123",
+      "constraints": "Minimum 8 characters",
+      "test_category": "valid",
+      "scenario_description": "Successful User Registration - Valid Credentials (Password)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "shortpwduser@example.com",
+      "constraints": "Must be a valid and unique email format",
+      "test_category": "valid",
+      "scenario_description": "Attempt Registration - Password Less Than 8 Characters (Email)"
+    },
+    {
+      "field_name": "password",
+      "data_type": "string",
+      "sample_value": "short",
+      "constraints": "Minimum 8 characters",
+      "test_category": "invalid",
+      "scenario_description": "Attempt Registration - Password Less Than 8 Characters (Password < 8 chars)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "sevenchar@example.com",
+      "constraints": "Must be a valid and unique email format",
+      "test_category": "valid",
+      "scenario_description": "Attempt Registration - Password Less Than 8 Characters (Email)"
+    },
+    {
+      "field_name": "password",
+      "data_type": "string",
+      "sample_value": "1234567",
+      "constraints": "Minimum 8 characters",
+      "test_category": "invalid",
+      "scenario_description": "Attempt Registration - Password Less Than 8 Characters (Password = 7 chars)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "invalid-email",
+      "constraints": "Must be a valid email format",
+      "test_category": "invalid",
+      "scenario_description": "Attempt Registration - Invalid Email Format (Missing '@' and domain)"
+    },
+    {
+      "field_name": "password",
+      "data_type": "string",
+      "sample_value": "ValidP@ssword2",
+      "constraints": "Minimum 8 characters",
+      "test_category": "valid",
+      "scenario_description": "Attempt Registration - Invalid Email Format (Password)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "user@.com",
+      "constraints": "Must be a valid email format (domain starts with dot)",
+      "test_category": "invalid",
+      "scenario_description": "Attempt Registration - Invalid Email Format (Invalid domain)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "@domain.com",
+      "constraints": "Must be a valid email format (missing local part)",
+      "test_category": "invalid",
+      "scenario_description": "Attempt Registration - Invalid Email Format (Missing local part)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "user@domain",
+      "constraints": "Must be a valid email format (missing Top-Level Domain)",
+      "test_category": "invalid",
+      "scenario_description": "Attempt Registration - Invalid Email Format (Missing TLD)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "user.com",
+      "constraints": "Must be a valid email format (missing '@' symbol)",
+      "test_category": "invalid",
+      "scenario_description": "Attempt Registration - Invalid Email Format (Missing '@')"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "existing@example.com",
+      "constraints": "Must be a unique email (already registered)",
+      "test_category": "invalid",
+      "scenario_description": "Attempt Registration - Already Registered Email (Email already exists)"
+    },
+    {
+      "field_name": "password",
+      "data_type": "string",
+      "sample_value": "NewStrongP@ss1",
+      "constraints": "Minimum 8 characters",
+      "test_category": "valid",
+      "scenario_description": "Attempt Registration - Already Registered Email (Password)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "eightcharpwd@example.com",
+      "constraints": "Must be a valid and unique email format",
+      "test_category": "valid",
+      "scenario_description": "Successful Registration - Password Exactly 8 Characters (Email)"
+    },
+    {
+      "field_name": "password",
+      "data_type": "string",
+      "sample_value": "P@ssword",
+      "constraints": "Minimum 8 characters (boundary: exactly 8)",
+      "test_category": "boundary",
+      "scenario_description": "Successful Registration - Password Exactly 8 Characters (Password = 8 chars)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "user.name+alias@example.com",
+      "constraints": "Must be a valid and unique email format (allows '+', '.')",
+      "test_category": "valid",
+      "scenario_description": "Successful Registration - Email with Allowed Special Characters (Email with '+' and '.')"
+    },
+    {
+      "field_name": "password",
+      "data_type": "string",
+      "sample_value": "SpecialEmailP@ss",
+      "constraints": "Minimum 8 characters",
+      "test_category": "valid",
+      "scenario_description": "Successful Registration - Email with Allowed Special Characters (Password)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "another-user@domain.net",
+      "constraints": "Must be a valid and unique email format (allows '-')",
+      "test_category": "valid",
+      "scenario_description": "Successful Registration - Email with Allowed Special Characters (Email with '-')"
+    },
+    {
+      "field_name": "password",
+      "data_type": "string",
+      "sample_value": "P@sswordA1",
+      "constraints": "Minimum 8 characters",
+      "test_category": "valid",
+      "scenario_description": "Successful Registration - Email with Allowed Special Characters (Password)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "",
+      "constraints": "Must not be empty, must be valid email format",
+      "test_category": "invalid",
+      "scenario_description": "Attempt Registration - Empty Email Field"
+    },
+    {
+      "field_name": "password",
+      "data_type": "string",
+      "sample_value": "ValidPass123",
+      "constraints": "Minimum 8 characters",
+      "test_category": "valid",
+      "scenario_description": "Attempt Registration - Empty Email Field (Password)"
+    },
+    {
+      "field_name": "email",
+      "data_type": "email",
+      "sample_value": "validempty@example.com",
+      "constraints": "Must be a valid and unique email format",
+      "test_category": "valid",
+      "scenario_description": "Attempt Registration - Empty Password Field (Email)"
+    },
+    {
+      "field_name": "password",
+      "data_type": "string",
+      "sample_value": "",
+      "constraints": "Must not be empty, minimum 8 characters",
+      "test_category": "invalid",
+      "scenario_description": "Attempt Registration - Empty Password Field"
+    }
+  ]
+}

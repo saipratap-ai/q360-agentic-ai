@@ -4,11 +4,9 @@ Factory for creating test case and test data generation agents.
 """
 
 from typing import Dict, List, Any
-from google.cloud import aiplatform
-from google.cloud.aiplatform_v1beta1.types import (
-    GenerateContentRequest,
-)
+import google.generativeai as genai
 import json
+import os
 
 
 class GoogleCloudAgentFactory:
@@ -24,10 +22,16 @@ class GoogleCloudAgentFactory:
         """
         self.project_id = project_id
         self.region = region
-        self.location = f"projects/{project_id}/locations/{region}"
 
-        # Initialize Vertex AI
-        aiplatform.init(project=project_id, location=region)
+        # Initialize with API key from environment
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            # Try to get from gcloud auth
+            from google.auth import default
+            credentials, _ = default()
+            genai.configure(credentials=credentials)
+        else:
+            genai.configure(api_key=api_key)
 
     def create_test_case_generator_agent(self) -> "TestCaseGeneratorAgent":
         """Create a test case generator agent using Google Cloud Agents."""
@@ -45,7 +49,7 @@ class TestCaseGeneratorAgent:
         """Initialize Test Case Generator Agent."""
         self.project_id = project_id
         self.region = region
-        self.model = aiplatform.GenerativeModel("gemini-2.0-flash")
+        self.model = genai.GenerativeModel("gemini-2.5-flash")
 
     def generate_test_cases(self, story: Dict[str, str]) -> List[Dict[str, Any]]:
         """
@@ -131,7 +135,7 @@ class TestDataGeneratorAgent:
         """Initialize Test Data Generator Agent."""
         self.project_id = project_id
         self.region = region
-        self.model = aiplatform.GenerativeModel("gemini-2.0-flash")
+        self.model = genai.GenerativeModel("gemini-2.5-flash")
 
     def generate_test_data(self, test_cases: List, story_context: str) -> List[Dict]:
         """
