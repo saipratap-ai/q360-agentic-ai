@@ -63,10 +63,8 @@ Q360 leverages **Google Gemini 2.5 Flash**, **LangGraph** orchestration, and **J
 ```
 qa-healthcare-agent/
 ├── agents/                    # AI Agents
-│   ├── test_case_generator.py # Generates test cases from stories
-│   └── test_data_generator.py # Generates test data for fields
+│   └── google_cloud_agent_factory.py  # Factory for test generation agents
 ├── api/                       # FastAPI backend
-│   ├── main.py                # API routes & endpoints
 │   └── secrets.py             # Google Secret Manager integration
 ├── frontend/                  # React dashboard
 │   ├── src/
@@ -77,7 +75,7 @@ qa-healthcare-agent/
 │   └── jira_client.py         # Jira API client
 ├── orchestrator/              # Workflow orchestration
 │   └── workflow.py            # LangGraph multi-agent workflow
-├── run_server.py              # Standalone server (recommended)
+├── run_server.py              # FastAPI server (entry point)
 ├── Dockerfile                 # Multi-stage Docker build
 ├── requirements.txt           # Python dependencies
 ├── .env.example               # Environment variables template

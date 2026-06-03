@@ -3,7 +3,6 @@ Q360 Standalone Server - Runs all API endpoints directly.
 This avoids uvicorn module caching issues with api.main
 """
 import os
-import sys
 import json
 from pathlib import Path
 from dotenv import load_dotenv
@@ -22,10 +21,10 @@ app = FastAPI(title="Q360 Agentic AI Test Platform", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8000").split(","),
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # ===== INITIALIZE CLIENTS =====
@@ -33,7 +32,9 @@ from api.secrets import init_secrets, get_jira_credentials
 from integrations.jira_client import JiraClient
 from orchestrator.workflow import Q360Workflow
 
-project_id = os.getenv("GCP_PROJECT_ID", "gen-lang-client-0256721605")
+project_id = os.getenv("GCP_PROJECT_ID")
+if not project_id:
+    raise ValueError("GCP_PROJECT_ID environment variable is required")
 try:
     init_secrets(project_id)
     jira_url, jira_email, jira_token = get_jira_credentials()

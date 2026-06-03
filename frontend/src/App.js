@@ -624,10 +624,10 @@ function App() {
         <div className="sidebar-footer">
           {!sidebarCollapsed && (
             <div className="user-info">
-              <div className="user-avatar">AS</div>
+              <div className="user-avatar">QA</div>
               <div className="user-details">
-                <span className="user-name">Akshay S.</span>
-                <span className="user-role">QA Engineer</span>
+                <span className="user-name">QA Engineer</span>
+                <span className="user-role">Platform User</span>
               </div>
             </div>
           )}
