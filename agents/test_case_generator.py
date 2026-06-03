@@ -1,6 +1,6 @@
 import json
 import google.generativeai as genai
-from typing import list
+from typing import List
 from pydantic import BaseModel
 
 
@@ -8,7 +8,7 @@ class TestCase(BaseModel):
     test_id: str
     title: str
     description: str
-    steps: list[str]
+    steps: List[str]
     expected_result: str
     test_type: str  # positive, negative, edge
     priority: str  # high, medium, low
@@ -17,7 +17,7 @@ class TestCase(BaseModel):
 class TestCaseGeneratorAgent:
     def __init__(self, api_key: str):
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel("gemini-pro")
+        self.model = genai.GenerativeModel("gemini-2.0-flash")
 
     def generate_test_cases(self, story: dict) -> list[TestCase]:
         """

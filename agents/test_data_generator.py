@@ -1,6 +1,6 @@
 import json
 import google.generativeai as genai
-from typing import list
+from typing import List
 from pydantic import BaseModel
 
 
@@ -15,7 +15,7 @@ class TestData(BaseModel):
 class TestDataGeneratorAgent:
     def __init__(self, api_key: str):
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel("gemini-pro")
+        self.model = genai.GenerativeModel("gemini-2.0-flash")
 
     def generate_test_data(self, test_cases: list, story_context: str) -> list[TestData]:
         """

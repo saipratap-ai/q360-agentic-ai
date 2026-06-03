@@ -1,5 +1,5 @@
 from langgraph.graph import StateGraph, END
-from typing import TypedDict, list, Any
+from typing import TypedDict, List, Any, Dict
 from agents.test_case_generator import TestCaseGeneratorAgent
 from agents.test_data_generator import TestDataGeneratorAgent
 from integrations.jira_client import JiraClient
@@ -8,9 +8,9 @@ from integrations.jira_client import JiraClient
 class WorkflowState(TypedDict):
     """State passed through the workflow."""
 
-    jira_story: dict
-    test_cases: list
-    test_data: list
+    jira_story: Dict
+    test_cases: List
+    test_data: List
     error: str
 
 

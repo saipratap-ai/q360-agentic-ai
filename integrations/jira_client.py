@@ -1,5 +1,5 @@
 from jira import JIRA
-from typing import dict, list
+from typing import Dict, List
 
 
 class JiraClient:
@@ -7,7 +7,7 @@ class JiraClient:
         """Initialize Jira client."""
         self.jira = JIRA(jira_url, basic_auth=(email, api_token))
 
-    def fetch_story(self, issue_key: str) -> dict:
+    def fetch_story(self, issue_key: str) -> Dict:
         """
         Fetch a Jira story by issue key.
 
@@ -34,7 +34,7 @@ class JiraClient:
             print(f"Error fetching story {issue_key}: {e}")
             return {}
 
-    def fetch_stories_by_jql(self, jql_query: str, max_results: int = 10) -> list[dict]:
+    def fetch_stories_by_jql(self, jql_query: str, max_results: int = 10) -> List[Dict]:
         """
         Fetch multiple stories using JQL query.
 
